@@ -1,0 +1,2 @@
+# RinHash-cuda
+RinHash cuda
