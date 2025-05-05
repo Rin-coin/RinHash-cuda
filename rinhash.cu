@@ -27,39 +27,21 @@ extern "C" __global__ void rinhash_cuda_kernel(
     // Intermediate results in shared memory
     __shared__ uint8_t blake3_out[32];
     __shared__ uint8_t argon2_out[32];
-    
-    printf("Processing input: ");
-    for (int i = 0; i < input_len; i++) {
-        printf("%02x", input[i]);
-    }
     // Only one thread should do this work
     if (threadIdx.x == 0) {
         // Step 1: BLAKE3 hash - now using light_hash_device
         light_hash_device(input, input_len, blake3_out);
-        printf("BLAKE3 hash: ");
-        for (int i = 0; i < 32; i++) {
-            printf("%02x", blake3_out[i]);
-        }
         // Step 2: Argon2d hash
         uint32_t m_cost = 64; // Example
         size_t memory_size = m_cost * sizeof(block);
         block* d_memory = (block*)malloc(memory_size);
         uint8_t salt[11] = { 'R','i','n','C','o','i','n','S','a','l','t' };
         device_argon2d_hash(argon2_out, blake3_out, 32, 2, 64, 1, d_memory, salt, 11);
-        printf("Argon2d hash: ");
-        for (int i = 0; i < 32; i++) {
-            printf("%02x", argon2_out[i]);
-        }
         
         // Step 3: SHA3-256 hash
         uint8_t sha3_out[32];
         sha3_256_device(argon2_out, 32, sha3_out);
         
-        printf("SHA3-256 hash: ");
-        for (int i = 0; i < 32; i++) {
-            printf("%02x", sha3_out[i]);
-            output[i] = sha3_out[i];
-        }
     }
     
     // Use syncthreads to ensure all threads wait for the computation to complete
