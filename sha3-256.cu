@@ -132,20 +132,9 @@ __device__ void sha3_256_device(const uint8_t *input, size_t inlen, uint8_t *has
     ((uint8_t*)st)[rate - 1] ^= 0x80;     // パディング（最後のバイト）
     keccakf(st);  // 最終 Keccak-f
 
-    // 状態確認：吸収後
-    printf("SHA3-256 A[0..3] = ");
-    for (int i = 0; i < 4; i++) {
-        printf("%08llx ", st[i]);
-    }
-    printf("\n");
 
     // スクイーズ：出力32バイト
     for (int i = 0; i < 4; i++) {
         store64_le(hash_out + i * 8, st[i]);
     }
-    printf("Hash Bytes: ");
-for (int i = 0; i < 32; i++) {
-    printf("%02x", hash_out[i]);
-}
-printf("\n");
 }
