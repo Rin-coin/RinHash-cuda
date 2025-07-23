@@ -32,11 +32,11 @@ extern "C" __global__ void rinhash_cuda_kernel(
         // Step 1: BLAKE3 hash - now using light_hash_device
         light_hash_device(input, input_len, blake3_out);
         // Step 2: Argon2d hash
-        uint32_t m_cost = 64000; // Example
+        uint32_t m_cost = 64; // Example
         size_t memory_size = m_cost * sizeof(block);
         block* d_memory = (block*)malloc(memory_size);
         uint8_t salt[11] = { 'R','i','n','C','o','i','n','S','a','l','t' };
-        device_argon2d_hash(argon2_out, blake3_out, 32, 2, 64000, 1, d_memory, salt, 11);
+        device_argon2d_hash(argon2_out, blake3_out, 32, 2, 64, 1, d_memory, salt, 11);
         
         // Step 3: SHA3-256 hash
         uint8_t sha3_out[32];
